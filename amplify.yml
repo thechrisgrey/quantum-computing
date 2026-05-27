@@ -5,7 +5,14 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm ci
+            # 1) Build the qcsim wheel that JupyterLite ships into Pyodide.
+            - cd .. && python3 -m pip install --user --quiet build
+            - cd ../qcsim && python3 -m build --wheel
+            # 2) Build the in-browser JupyterLite distribution.
+            #    Outputs to web/public/lab/ which Next.js then ships statically.
+            - cd ../web/jupyterlite-build && bash build.sh
+            # 3) Standard Node deps.
+            - cd ../web && npm ci
         build:
           commands:
             - npm run build
@@ -16,3 +23,5 @@ applications:
       cache:
         paths:
           - node_modules/**/*
+          - web/jupyterlite-build/.venv/**/*
+          - web/jupyterlite-build/.cache/**/*
