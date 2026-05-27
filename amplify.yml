@@ -23,5 +23,5 @@ applications:
       cache:
         paths:
           - node_modules/**/*
-          - web/jupyterlite-build/.venv/**/*
-          - web/jupyterlite-build/.cache/**/*
+          - jupyterlite-build/.venv/**/*
+          - jupyterlite-build/.cache/**/*

@@ -44,6 +44,10 @@ def _rz(theta: float) -> np.ndarray:
     return np.array([[e_minus, 0], [0, e_plus]], dtype=np.complex128)
 
 
+def _cphaseshift(angle: float) -> np.ndarray:
+    return np.diag([1, 1, 1, np.exp(1j * angle)]).astype(np.complex128)
+
+
 _CNOT = np.array(
     [
         [1, 0, 0, 0],
@@ -192,6 +196,11 @@ class Circuit:
         self._gates.append(("CZ", _CZ, (control, target)))
         return self
 
+    def cphaseshift(self, control: int, target: int, angle: float) -> "Circuit":
+        self._touch([control, target])
+        self._gates.append((f"CP({angle:.3f})", _cphaseshift(angle), (control, target)))
+        return self
+
     def swap(self, a: int, b: int) -> "Circuit":
         self._touch([a, b])
         self._gates.append(("SWAP", _SWAP, (a, b)))
@@ -202,6 +211,15 @@ class Circuit:
     def ccnot(self, c1: int, c2: int, target: int) -> "Circuit":
         self._touch([c1, c2, target])
         self._gates.append(("CCNOT", _CCNOT, (c1, c2, target)))
+        return self
+
+    # ----- composition -----
+
+    def add_circuit(self, other: "Circuit", target_mapping: dict[int, int] | None = None) -> "Circuit":
+        for name, gate, qubits in other._gates:
+            mapped = tuple(target_mapping[q] if target_mapping else q for q in qubits)
+            self._touch(mapped)
+            self._gates.append((name, gate, mapped))
         return self
 
     # ----- properties -----
@@ -268,6 +286,9 @@ class Circuit:
             elif name == "SWAP":
                 col[qubits[0]] = " S "
                 col[qubits[1]] = " W "
+            elif name.startswith("CP("):
+                col[qubits[0]] = " C "
+                col[qubits[1]] = " P "
             elif name == "CCNOT":
                 col[qubits[0]] = " C "
                 col[qubits[1]] = " C "

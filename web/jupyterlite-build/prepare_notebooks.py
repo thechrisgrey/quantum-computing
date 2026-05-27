@@ -21,7 +21,7 @@ BOOTSTRAP_SOURCE = """\
 import sys
 if "pyodide" in sys.modules:
     import piplite
-    await piplite.install("./files/wheels/qcsim-0.1.0-py3-none-any.whl")
+    await piplite.install("qcsim")
     import qcsim  # registers braket.* aliases in sys.modules
     # Make `from lib...` resolvable against the staged curriculum library.
     # JupyterLite typically mounts contents at /drive/; we add a couple of

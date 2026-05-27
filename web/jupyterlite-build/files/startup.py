@@ -10,12 +10,10 @@ import sys
 
 try:
     import piplite
-    await piplite.install(["/files/wheels/qcsim-0.1.0-py3-none-any.whl"])  # noqa: F704
+    await piplite.install("qcsim")  # noqa: F704
+    import qcsim  # noqa: F401 — triggers braket.* alias registration
 except Exception as exc:  # pragma: no cover - kernel diagnostic only
-    print(f"[startup] piplite install failed: {exc}", file=sys.stderr)
-
-# Trigger the braket.* alias registration in qcsim/__init__.py.
-import qcsim  # noqa: F401, E402
+    print(f"[startup] qcsim install/import failed: {exc}", file=sys.stderr)
 
 # Make the curriculum's `lib/` importable.
 if "/files" not in sys.path:
